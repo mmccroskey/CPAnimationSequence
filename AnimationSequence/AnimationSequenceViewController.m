@@ -33,18 +33,20 @@
 	  [CPAnimationStep for:0.5 animate:^{ self.revertButton.alpha = 1.0; }],		// some teardown animation
 	  [CPAnimationStep for:0.0 animate:^{ self.labelHeader.text = @"Animation:";}],	// zero time completion block
 	  nil];
+    [animationSequence setDelegate:self];
 	[animationSequence run];
 }
 
 - (IBAction) revertAnimation {
-	[[CPAnimationSequence sequenceWithSteps:
+	CPAnimationSequence* animationSequence = [CPAnimationSequence sequenceWithSteps:
 	  [CPAnimationStep for:0.0 animate:^{ self.labelHeader.text = @"Running:";}],	// zero time start block
 	  [CPAnimationStep for:0.5 animate:^{ self.revertButton.alpha = 0.0; }],		// some setup animation
 	  [self viewSpecificRevertAnimation],											// main animation
 	  [CPAnimationStep for:0.5 animate:^{ self.startButton.alpha = 1.0; }],			// some teardown animation
 	  [CPAnimationStep for:0.0 animate:^{ self.labelHeader.text = @"Animation:";}],	// zero time completion block
-	  nil
-	] run];
+	  nil];
+    [animationSequence setDelegate:self];
+    [animationSequence run];
 }
 
 #pragma mark - composite pattern ability for CPAnimationSequence
@@ -100,6 +102,18 @@
 									  ? [UIColor colorWithWhite:0.9 alpha:1.0]
 									  : [UIColor clearColor]);
 	}
+}
+
+#pragma mark - Animation delegate methods
+
+- (void)animationDidStart:(CPAnimationStep *)animation
+{
+    NSLog(@"Started animation with class %@", [animation class]);
+}
+
+- (void)animationDidFinish:(CPAnimationStep *)animation
+{
+    NSLog(@"Finished animation with class %@", [animation class]);
 }
 
 #pragma mark - UIKit overrides

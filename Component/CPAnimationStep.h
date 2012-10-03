@@ -4,8 +4,17 @@
 
 #import <Foundation/Foundation.h>
 
-/** Helper type definition for the component. */
+@class CPAnimationStep;
+
+/** Helper type definitions for the component. */
 typedef void (^AnimationStep)(void);
+typedef void(^AnimationCompletionStep)(CPAnimationStep* step);
+
+@protocol CPAnimationStepDelegate <NSObject>
+@optional
+- (void)animationDidStart:(CPAnimationStep*)animation;
+- (void)animationDidFinish:(CPAnimationStep*)animation;
+@end
 
 /** 
  A CPAnimationStep defines a single animation object with a delay, duration, execution block and animation options.
@@ -17,8 +26,16 @@ typedef void (^AnimationStep)(void);
 + (id) after:(NSTimeInterval)delay
 	 animate:(AnimationStep)step;
 
++ (id) after:(NSTimeInterval)delay
+     animate:(AnimationStep)step
+    delegate:(id<CPAnimationStepDelegate>)delegate;
+
 + (id) for:(NSTimeInterval)duration
    animate:(AnimationStep)step;
+
++ (id) for:(NSTimeInterval)duration
+   animate:(AnimationStep)step
+  delegate:(id<CPAnimationStepDelegate>)delegate;
 
 + (id) after:(NSTimeInterval)delay
 		 for:(NSTimeInterval)duration
@@ -29,12 +46,19 @@ typedef void (^AnimationStep)(void);
 	 options:(UIViewAnimationOptions)theOptions
 	 animate:(AnimationStep)step;
 
++ (id) after:(NSTimeInterval)delay
+		 for:(NSTimeInterval)duration
+	 options:(UIViewAnimationOptions)theOptions
+     animate:(AnimationStep)step
+    delegate:(id<CPAnimationStepDelegate>)delegate;
+
 #pragma mark - properties (normally already set by the constructor)
 
 @property (nonatomic) NSTimeInterval delay;
 @property (nonatomic) NSTimeInterval duration;
 @property (nonatomic, copy) AnimationStep step;
 @property (nonatomic) UIViewAnimationOptions options;
+@property (nonatomic, strong) id<CPAnimationStepDelegate> delegate;
 
 #pragma mark - execution
 

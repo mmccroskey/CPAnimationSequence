@@ -22,28 +22,42 @@
 #pragma mark construction
 
 + (id) after:(NSTimeInterval)delay animate:(AnimationStep)step {
-	return [self after:delay for:0.0 options:0 animate:step];
+	return [self after:delay for:0.0 options:0 animate:step delegate:nil];
+}
+
++ (id) after:(NSTimeInterval)delay animate:(AnimationStep)step delegate:(id<CPAnimationStepDelegate>)delegate {
+    return [self after:delay for:0.0 options:0 animate:step delegate:delegate];
 }
 
 + (id) for:(NSTimeInterval)duration animate:(AnimationStep)step {
-   return [self after:0.0 for:duration options:0 animate:step];
+   return [self after:0.0 for:duration options:0 animate:step delegate:nil];
+}
+
++ (id) for:(NSTimeInterval)duration animate:(AnimationStep)step delegate:(id<CPAnimationStepDelegate>)delegate {
+    return [self after:0.0 for:duration options:0 animate:step delegate:delegate];
 }
 
 + (id) after:(NSTimeInterval)delay for:(NSTimeInterval)duration animate:(AnimationStep)step {
-	return [self after:delay for:duration options:0 animate:step];
+	return [self after:delay for:duration options:0 animate:step delegate:nil];
+}
+
++ (id) after:(NSTimeInterval)delay for:(NSTimeInterval)duration options:(UIViewAnimationOptions)options animate:(AnimationStep)step {
+    return [self after:delay for:duration options:options animate:step delegate:nil];
 }
 
 + (id) after:(NSTimeInterval)theDelay
 		 for:(NSTimeInterval)theDuration
 	 options:(UIViewAnimationOptions)theOptions
-	 animate:(AnimationStep)theStep {
-	
-	CPAnimationStep* instance = [[self alloc] init];
+     animate:(AnimationStep)theStep
+    delegate:(id<CPAnimationStepDelegate>)theDelegate {
+    
+   	CPAnimationStep* instance = [[self alloc] init];
 	if (instance) {
 		instance.delay = theDelay;
 		instance.duration = theDuration;
 		instance.options = theOptions;
 		instance.step = [theStep copy];
+        instance.delegate = theDelegate;
 	}
 	return instance;
 }
@@ -66,36 +80,54 @@
 }
 
 - (void) runAnimated:(BOOL)animated {
-	if (!self.consumableSteps) {
+	if (!self.consumableSteps) { // Recursion start anchor
 		self.consumableSteps = [[NSMutableArray alloc] initWithArray:[self animationStepArray]];
+        [self.delegate animationDidStart:self];
 	}
-	if (![self.consumableSteps count]) { // recursion anchor
+	if (![self.consumableSteps count]) { // Recursion end anchor
 		self.consumableSteps = nil;
 		return; // we're done
+        [self.delegate animationDidFinish:self];
 	}
-	AnimationStep completionStep = ^{
-		[self.consumableSteps removeLastObject];
+    
+    AnimationCompletionStep completionStep = ^(CPAnimationStep* completedStep){
+        [self.consumableSteps removeLastObject];
+        NSLog(@"About to tell delegate that we're done");
+        if (!self){ NSLog(@"WTF we're nil!"); }
+        if (!self.delegate){ NSLog(@"WTF delegate is nil! Our class is %@", [self class]); }
+        [self.delegate animationDidFinish:completedStep];
+        NSLog(@"Supposedly just told delegate that we're done");
 		[self runAnimated:animated]; // recurse!
-	};
+    };
+    
 	CPAnimationStep* currentStep = [self.consumableSteps lastObject];
+    [self.delegate animationDidStart:currentStep];
 	// Note: do not animate to short steps
 	if (animated && currentStep.duration >= 0.02) {
+        NSLog(@"Actually animation this step");
 		[UIView animateWithDuration:currentStep.duration
 							  delay:currentStep.delay
 							options:currentStep.options
 						 animations:[currentStep animationStep:animated]
 						 completion:^(BOOL finished) {
 							 if (finished) {
-								 completionStep();
+								 completionStep(currentStep);
 							 }
+                             else {
+                                 NSLog(@"Step supposedly didn't complete, but notifying delgate anyway");
+                                 completionStep(currentStep);
+                             }
 						 }];
 	} else {
+        NSLog(@"Skipping animation and just completing");
 		void (^execution)(void) = ^{
+            NSLog(@"Inside execution block");
 			[currentStep animationStep:animated]();
-			completionStep();
+			completionStep(currentStep);
 		};
 		
 		if (animated && currentStep.delay) {
+            NSLog(@"Waiting for %f seconds and then completing", currentStep.delay);
 			[CPAnimationStep runBlock:execution afterDelay:currentStep.delay];
 		} else {
 			execution();
@@ -104,7 +136,7 @@
 }
 
 - (void) run {
-	NSLog(@"%@", self);
+	//NSLog(@"%@", self);
 	[self runAnimated:YES];
 }
 
