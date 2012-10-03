@@ -36,6 +36,17 @@
 	return instance;
 }
 
++ (id) sequenceWithStepsArray:(NSArray*)stepsArray
+{
+    CPAnimationSequence* instance = [[self alloc] init];
+    
+    if (instance)
+    {
+        [instance setSteps:stepsArray];
+    }
+    
+    return instance;
+}
 
 #pragma mark - property override
 
