@@ -1,5 +1,5 @@
 #
-# Be sure to run `pod spec lint mmccroskey-CPAnimationSequence.podspec' to ensure this is a
+# Be sure to run `pod spec lint CPAnimationSequence.podspec' to ensure this is a
 # valid spec.
 #
 # Remove all comments before submitting the spec. Optional attributes are commented.
@@ -7,12 +7,12 @@
 # For details see: https://github.com/CocoaPods/CocoaPods/wiki/The-podspec-format
 #
 Pod::Spec.new do |s|
-  s.name         = "mmccroskey-CPAnimationSequence"
-  s.version      = "0.0.4"
+  s.name         = "CPAnimationSequence"
+  s.version      = "0.0.5"
   s.summary      = "mmccroskey's fork of CPAnimationSequence."
   s.homepage     = "http://github.com/mmccroskey/CPAnimationSequence"
   s.author       = { "Matthew McCroskey" => "matthew.mccroskey@gmail.com" }
-  s.source       = { :git => "https://github.com/mmccroskey/CPAnimationSequence.git", :tag => "0.0.4" }
+  s.source       = { :git => "https://github.com/mmccroskey/CPAnimationSequence.git", :tag => "0.0.5" }
   s.license      = { :type => 'MIT', :file => 'LICENSE.markdown' }
   s.platform     = :ios, '4.3'
   s.source_files = 'Component'
