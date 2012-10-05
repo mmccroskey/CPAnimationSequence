@@ -8,11 +8,11 @@
 #
 Pod::Spec.new do |s|
   s.name         = "mmccroskey-CPAnimationSequence"
-  s.version      = "0.0.2"
+  s.version      = "0.0.3"
   s.summary      = "mmccroskey's fork of CPAnimationSequence."
   s.homepage     = "http://github.com/mmccroskey/CPAnimationSequence"
   s.author       = { "Matthew McCroskey" => "matthew.mccroskey@gmail.com" }
-  s.source       = { :git => "https://github.com/mmccroskey/CPAnimationSequence.git", :tag => "0.0.1" }
+  s.source       = { :git => "https://github.com/mmccroskey/CPAnimationSequence.git", :tag => "0.0.3" }
   s.license      = { :type => 'MIT', :file => 'LICENSE.markdown' }
   s.platform     = :ios, '5.0'
   s.source_files = 'Component'
